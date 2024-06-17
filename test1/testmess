@@ -1,0 +1,78 @@
+import React, { useEffect } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
+import Component from '../src/components/TabComponent';
+import { initializeApp, getApps } from 'firebase/app';
+
+function App() {
+    useEffect(() => {
+        // Cấu hình Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHzO7mIEp01pVZOmDTkn_1MTk7GLacL2k",
+            authDomain: "fir-demo-7313d.firebaseapp.com",
+            databaseURL: "https://fir-demo-7313d-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "fir-demo-7313d",
+            storageBucket: "fir-demo-7313d.appspot.com",
+            messagingSenderId: "89460529998",
+            appId: "1:89460529998:web:757b4a7eb21b991e55dc1f",
+            measurementId: "G-TG821B3E3K"
+        };
+
+        // Khởi tạo Firebase
+        if (!getApps().length) {
+            initializeApp(firebaseConfig);
+        }
+
+        // Yêu cầu quyền thông báo
+        const requestNotificationPermission = async () => {
+            const authStatus = await messaging().requestPermission();
+            const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+            
+            if (enabled) {
+                console.log('Notification permission granted.');
+            } else {
+                console.log('Notification permission denied.');
+            }
+        };
+
+        requestNotificationPermission();
+
+        // Lấy token của thiết bị
+        const getToken = async () => {
+            const token = await messaging().getToken();
+            console.log('Device FCM Token:', token);
+            // Bạn có thể lưu token này hoặc gửi lên máy chủ của mình
+        };
+
+        getToken();
+
+        // Lắng nghe thông báo khi ứng dụng đang mở
+        const unsubscribeOnMessage = messaging().onMessage(async (remoteMessage) => {
+            Alert.alert('Thông báo mới:', remoteMessage.notification.title);
+            // Xử lý thông báo ở đây
+        });
+
+        // Dọn dẹp khi component unmount
+        return () => {
+            unsubscribeOnMessage();
+        };
+
+    }, []);
+
+    return (
+        <View style={styles.container}>
+            <Component />
+            <StatusBar style="auto" />
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});
+
+export default App;

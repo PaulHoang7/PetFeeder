@@ -1,0 +1,243 @@
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+const Tab = ({ label, isActive, onClick }) => {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View
+        style={[
+          styles.tab,
+          { backgroundColor: isActive ? '#4CAF50' : 'transparent' },
+        ]}
+      >
+        {label === 'Tab 3' ? <Icon name="clock-o" size={20} color="black" /> : <Text style={styles.tabText}>{label}</Text>}
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+const Content = ({ isActive, children }) => {
+  return <View style={{ display: isActive ? 'flex' : 'none' }}>{children}</View>;
+};
+
+const Pagination = ({ itemsPerPage, totalItems, paginate, currentPage }) => {
+  const pageNumbers = [];
+
+  for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {
+    pageNumbers.push(i);
+  }
+
+  return (
+    <View style={styles.paginationContainer}>
+      {pageNumbers.map(number => (
+        <TouchableOpacity
+          key={number}
+          onPress={() => paginate(number)}
+          style={[
+            styles.paginationButton,
+            { backgroundColor: currentPage === number ? '#4CAF50' : 'transparent' },
+          ]}
+        >
+          <Text style={styles.paginationText}>{number}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
+
+const TableContent = ({ isActive }) => {
+  const tableData = [
+    { id: 1, name: 'Item 1', price: '$10', quantity: 5 },
+    { id: 2, name: 'Item 2', price: '$20', quantity: 3 },
+    { id: 3, name: 'Item 3', price: '$30', quantity: 2 },
+    { id: 4, name: 'Item 4', price: '$40', quantity: 1 },
+    { id: 5, name: 'Item 5', price: '$50', quantity: 7 },
+    { id: 6, name: 'Item 6', price: '$60', quantity: 6 },
+    { id: 7, name: 'Item 7', price: '$70', quantity: 4 },
+    { id: 8, name: 'Item 7', price: '$70', quantity: 4 },
+    { id: 9, name: 'Item 7', price: '$70', quantity: 4 },
+    { id: 10, name: 'Item 7', price: '$70', quantity: 4 },
+    // Thêm dữ liệu khác nếu cần
+  ];
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Tính toán phần dữ liệu cần hiển thị trên trang hiện tại
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = tableData.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Logic cho phần chuyển trang
+  const paginate = pageNumber => setCurrentPage(pageNumber);
+
+  return (
+    <Content isActive={isActive}>
+      <Text style={styles.heading}>HISTORY</Text>
+      <View style={styles.tableContainer}>
+        <FlatList
+          data={currentItems}
+          renderItem={({ item }) => (
+            <View style={styles.tableRow}>
+              <Text style={[styles.cell, styles.cellText]}>{item.id}</Text>
+              <Text style={[styles.cell, styles.cellText]}>{item.name}</Text>
+              <Text style={[styles.cell, styles.cellText]}>{item.price}</Text>
+              <Text style={[styles.cell, styles.cellText]}>{item.quantity}</Text>
+            </View>
+          )}
+          keyExtractor={item => item.id.toString()}
+        />
+      </View>
+      {/* Phần phân trang */}
+      <Pagination
+        itemsPerPage={itemsPerPage}
+        totalItems={tableData.length}
+        paginate={paginate}
+        currentPage={currentPage}
+      />
+    </Content>
+  );
+};
+
+const Tabs = () => {
+  const [activeTab, setActiveTab] = useState(1);
+
+  const handleTabClick = (tabIndex) => {
+    setActiveTab(tabIndex);
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* <View style={styles.header}>
+        <Text style={styles.headerText}>Header</Text>
+      </View> */}
+      
+      <View style={styles.tabContainer}>
+        <Tab
+          label="Tab 1"
+          isActive={activeTab === 1}
+          onClick={() => handleTabClick(1)}
+        />
+        <Tab
+          label="Tab 2"
+          isActive={activeTab === 2}
+          onClick={() => handleTabClick(2)}
+        />
+        <Tab
+          label="Tab 3"
+          isActive={activeTab === 3}
+          onClick={() => handleTabClick(3)}
+        />
+      </View>
+      <View style={styles.contentContainer}>
+        <Content isActive={activeTab === 1}>
+          <Text>Content for Tab 1</Text>
+          <Text>This is the content for tab 1.</Text>
+        </Content>
+        <Content isActive={activeTab === 2}>
+          <Text>Content for Tab 2</Text>
+          <Text>This is the content for tab 2.</Text>
+        </Content>
+        <TableContent isActive={activeTab === 3} />
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f2f2f2',
+  },
+  header: {
+    backgroundColor: '#4CAF50',
+    padding: 20,
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 20,
+    
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  tabContainer: {
+    marginTop:50,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  tab: {
+    padding: 20,
+    margin: 5,
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  tableContainer: {
+    flex: 1,
+    width: '100%', // Độ rộng của bảng
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%', // Độ rộng của dòng
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginVertical: 5, // Khoảng cách giữa các hàng
+  },
+  cell: {
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: 5,
+  },
+  cellText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  heading: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    alignSelf: 'center',
+    color: '#333',
+  },
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 10,
+    marginBottom:50,
+  },
+  paginationButton: {
+    padding: 10,
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderRadius: 5,
+    backgroundColor: 'transparent',
+  },
+  paginationText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+});
+
+export default Tabs;

@@ -1,0 +1,32 @@
+import React, { useEffect } from 'react';
+import messaging from '@react-native-firebase/messaging';
+
+const App = () => {
+  useEffect(() => {
+    // Xử lý thông báo khi ứng dụng đang chạy
+    messaging().onMessage(async (remoteMessage) => {
+      console.log('Nhận thông báo:', remoteMessage);
+      // Xử lý thông báo tại đây
+    });
+
+    // Xử lý thông báo khi ứng dụng đang ở trạng thái nền
+    messaging().onNotificationOpenedApp((remoteMessage) => {
+      console.log('Thông báo được nhấp:', remoteMessage);
+      // Xử lý sự kiện nhấp thông báo tại đây
+    });
+
+    // Kiểm tra xem ứng dụng có được khởi động từ thông báo không
+    messaging().getInitialNotification().then(remoteMessage => {
+      if (remoteMessage) {
+        console.log('Ứng dụng được khởi động từ thông báo:', remoteMessage);
+        // Xử lý sự kiện khởi động từ thông báo tại đây
+      }
+    });
+  }, []);
+
+  return (
+    // Thành phần giao diện của bạn
+  );
+};
+
+export default App;
